@@ -2,10 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IonicModule, AlertController } from '@ionic/angular';
-import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartData, ChartOptions, ChartType } from 'chart.js';
-
-
+import { ChartData, ChartOptions } from 'chart.js';
 import { logOutOutline, notifications } from 'ionicons/icons';
 import { AuthService } from '../core/services/auth.service';
 import { DashboardService } from '../services/dasboard';
@@ -24,7 +21,6 @@ addIcons({
     CommonModule,
     IonicModule,
     RouterLink,
-    BaseChartDirective,
     NotificationBellComponent,
   ],
   templateUrl: './dashboard.page.html',
