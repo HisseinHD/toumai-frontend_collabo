@@ -9,10 +9,11 @@ import { DashboardService } from '../services/dasboard';
 import { NotificationBellComponent } from '../notificatio/notification.page';
 import { addIcons } from 'ionicons';
 import { notificationsOutline } from 'ionicons/icons';
+import { BaseChartDirective,  } from 'ng2-charts'; // Import manquant ajouté
+
 addIcons({
   'notifications-outline': notificationsOutline,
 });
-
 
 @Component({
   selector: 'app-dashboard',
@@ -20,8 +21,9 @@ addIcons({
   imports: [
     CommonModule,
     IonicModule,
+    BaseChartDirective,
     RouterLink,
-    NotificationBellComponent,
+    NotificationBellComponent, // Module Chart.js ajouté ici
   ],
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],

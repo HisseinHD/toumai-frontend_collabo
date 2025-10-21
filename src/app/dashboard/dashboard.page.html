@@ -5,17 +5,13 @@
     </ion-buttons>
 
     <ion-title>Tableau de Bord</ion-title>
-    
-     
 
     <ion-buttons slot="end">
       <ion-button color="light" (click)="confirmLogout()">
         <ion-icon slot="start" [icon]="logOutIcon"></ion-icon>
         Déconnexion
-
       </ion-button>
-                      <app-notificatio></app-notificatio>
-
+      <app-notificatio></app-notificatio>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -138,13 +134,13 @@
           <ion-row>
             <ion-col size="12" size-md="6">
               <h4>Répartition par état</h4>
-              <canvas baseChart [data]="taskStatusData" [options]="chartOptions" chartType="doughnut">
+              <canvas baseChart [data]="taskStatusData" [options]="chartOptions" [type]="'doughnut'">
               </canvas>
             </ion-col>
 
             <ion-col size="12" size-md="6">
               <h4>Répartition par priorité</h4>
-              <canvas baseChart [data]="taskPriorityData" [options]="chartOptions" chartType="doughnut">
+              <canvas baseChart [data]="taskPriorityData" [options]="chartOptions" [type]="'doughnut'">
               </canvas>
             </ion-col>
           </ion-row>
