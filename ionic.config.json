@@ -1,0 +1,7 @@
+{
+  "name": "toumai-frontend_collabo",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
