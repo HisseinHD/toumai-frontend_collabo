@@ -1,0 +1,338 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Gestion des Projets</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="showForm()" fill="solid">
+        <ion-icon name="add" slot="start"></ion-icon>
+        Nouveau Projet
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Header avec statistiques -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-text">
+        <h1>Gestion des Projets</h1>
+        <p>Créez et gérez tous vos projets en un seul endroit</p>
+        <ion-button routerLink="/dashboard" expand="block" fill="clear" shape="round">
+          Retour au Tableau de Bord
+        </ion-button>
+      </div>
+      <div class="header-stats">
+        <div class="stat-item">
+          <span class="stat-number">{{ projects.length }}</span>
+          <span class="stat-label">Total</span>
+        </div>
+        <div class="stat-item active-stat">
+          <span class="stat-number">{{ getProjectsByStatus('en cours').length }}</span>
+          <span class="stat-label">En Cours</span>
+        </div>
+        <div class="stat-item completed-stat">
+          <span class="stat-number">{{ getProjectsByStatus('terminé').length }}</span>
+          <span class="stat-label">Terminés</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau des projets -->
+  <ion-card class="projects-table-card">
+    <ion-card-header>
+      <ion-card-title>
+        <ion-icon name="folder"></ion-icon>
+        Liste des Projets
+      </ion-card-title>
+      <ion-card-subtitle>Gérez l'ensemble de vos projets d'équipe</ion-card-subtitle>
+     
+    </ion-card-header>
+
+    <ion-card-content>
+      <div class="table-container">
+        <!-- En-tête du tableau -->
+        <div class="table-header">
+          <div class="table-row">
+            <div class="table-col project-info">Projet</div>
+            <div class="table-col project-manager">Chef de Projet</div>
+            <div class="table-col dates">Dates</div>
+            <div class="table-col status">Statut</div>
+            <div class="table-col priority">Priorité</div>
+            <div class="table-col budget">Budget</div>
+            <div class="table-col actions">Actions</div>
+          </div>
+        </div>
+
+        <!-- Corps du tableau -->
+        <div class="table-body">
+          <div *ngIf="loading" class="loading-row">
+            <ion-spinner></ion-spinner>
+            <span>Chargement des projets...</span>
+          </div>
+
+          <div *ngIf="!loading && projects.length === 0" class="empty-row">
+            <ion-icon name="folder"></ion-icon>
+            <p>Aucun projet trouvé</p>
+            <ion-button (click)="showForm()" fill="solid" size="small">
+              Créer un projet
+            </ion-button>
+          </div>
+
+          <div *ngFor="let project of projects" class="table-row project-row"
+            [class.overdue]="isProjectOverdue(project)">
+            <!-- Informations du projet -->
+            <div class="table-col project-info">
+              <div class="project-avatar">
+                {{ project.titre.charAt(0) }}
+              </div>
+              <div class="project-details">
+                <h4 class="project-title">{{ project.titre }}</h4>
+                <p class="project-description">{{ project.description }}</p>
+                <div class="project-meta">
+                  <span class="members-count">
+                    <ion-icon name="people"></ion-icon>
+                    {{ project.membres?.length || 0 }} membres
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chef de projet -->
+            <div class="table-col project-manager">
+              <div class="manager-info">
+                <div class="manager-avatar">
+                  {{ project.chefDeProjet?.nom?.charAt(0) || '?' }}
+                </div>
+                <span class="manager-name">{{ project.chefDeProjet?.nom || 'Non assigné' }}</span>
+              </div>
+            </div>
+
+            <!-- Dates -->
+            <div class="table-col dates">
+              <div class="date-info">
+                <div class="date-item">
+                  <ion-icon name="play" color="primary"></ion-icon>
+                  <span>{{ project.dateDebut | date: 'dd/MM/yy' }}</span>
+                </div>
+                <div class="date-item">
+                  <ion-icon name="flag" color="danger"></ion-icon>
+                  <span>{{ project.dateFin | date: 'dd/MM/yy' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Statut -->
+            <div class="table-col status">
+              <ion-badge [color]="getStatusColor(project.statut)" class="status-badge">
+                {{ project.statut }}
+              </ion-badge>
+            </div>
+
+            <!-- Priorité -->
+            <div class="table-col priority">
+              <ion-badge [color]="getPriorityColor(project.priorite)" class="priority-badge">
+                <ion-icon [name]="getPriorityIcon(project.priorite)"></ion-icon>
+                {{ project.priorite }}
+              </ion-badge>
+            </div>
+
+            <!-- Budget -->
+            <div class="table-col budget">
+              <div class="budget-amount">
+                {{ project.budget | number }} FCFA
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="table-col actions">
+              <div class="action-buttons">
+                <ion-button fill="clear" size="small" color="primary" (click)="assignMembers(project)"
+                  class="assign-btn">
+                  <ion-icon name="person-add" slot="icon-only"></ion-icon>
+                </ion-button>
+
+                <ion-button fill="clear" size="small" color="warning" (click)="showForm(project)">
+                  <ion-icon name="create" slot="icon-only"></ion-icon>
+                </ion-button>
+
+                <ion-button fill="clear" size="small" color="danger" (click)="confirmDelete(project._id)">
+                  <ion-icon name="trash" slot="icon-only"></ion-icon>
+                </ion-button>
+
+                <ion-button fill="clear" size="small" color="medium" (click)="viewProjectDetails(project)">
+                  <ion-icon name="eye" slot="icon-only"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+<!-- Formulaire de projet -->
+<ion-modal [isOpen]="formVisible" (ionModalDidDismiss)="cancelForm()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>{{ editingProjectId ? 'Modifier le Projet' : 'Nouveau Projet' }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="cancelForm()">
+            <ion-icon name="close" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <form [formGroup]="projectForm" (ngSubmit)="submitForm()">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="6">
+              <ion-item>
+                <ion-label position="stacked">Titre *</ion-label>
+                <ion-input formControlName="titre" placeholder="Nom du projet"></ion-input>
+              </ion-item>
+              <ion-note *ngIf="projectForm.get('titre')?.invalid && projectForm.get('titre')?.touched" color="danger">
+                Le titre est requis (min. 3 caractères)
+              </ion-note>
+            </ion-col>
+
+            <ion-col size="12" size-md="6">
+              <ion-item>
+                <ion-label position="stacked">Chef de projet *</ion-label>
+                <ion-select formControlName="chefDeProjet" interface="action-sheet"
+                  placeholder="Sélectionner un chef de projet">
+                  <ion-select-option value="">Non assigné</ion-select-option>
+                  <ion-select-option *ngFor="let user of users" [value]="user._id" [disabled]="user.statut !== 'actif'">
+                    {{ user.prenom }} {{ user.nom }} - {{ user.poste }}
+                    <span *ngIf="user.statut !== 'actif'" class="user-inactive">(Inactif)</span>
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+              <ion-note *ngIf="projectForm.get('chefDeProjet')?.value">
+                Sélectionné: {{ getUserName(projectForm.get('chefDeProjet')?.value) }}
+              </ion-note>
+              <ion-note *ngIf="projectForm.get('chefDeProjet')?.invalid && projectForm.get('chefDeProjet')?.touched"
+                color="danger">
+                Le chef de projet est requis
+              </ion-note>
+            </ion-col>
+
+            <ion-col size="12">
+              <ion-item>
+                <ion-label position="stacked">Description *</ion-label>
+                <ion-textarea formControlName="description" placeholder="Description du projet" rows="4"></ion-textarea>
+              </ion-item>
+              <ion-note *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched"
+                color="danger">
+                La description est requise (min. 10 caractères)
+              </ion-note>
+            </ion-col>
+
+            <ion-col size="12" size-md="6">
+              <ion-item>
+                <ion-label position="stacked">Date de début *</ion-label>
+                <ion-input type="date" formControlName="dateDebut"></ion-input>
+              </ion-item>
+              <ion-note *ngIf="projectForm.get('dateDebut')?.invalid && projectForm.get('dateDebut')?.touched"
+                color="danger">
+                La date de début est requise
+              </ion-note>
+            </ion-col>
+
+            <ion-col size="12" size-md="6">
+              <ion-item>
+                <ion-label position="stacked">Date de fin *</ion-label>
+                <ion-input type="date" formControlName="dateFin"></ion-input>
+              </ion-item>
+              <ion-note *ngIf="projectForm.get('dateFin')?.invalid && projectForm.get('dateFin')?.touched"
+                color="danger">
+                La date de fin est requise
+              </ion-note>
+            </ion-col>
+
+            <ion-col size="12" size-md="6">
+              <ion-item>
+                <ion-label position="stacked">Statut</ion-label>
+                <ion-select formControlName="statut" interface="action-sheet">
+                  <ion-select-option value="en attente">En attente</ion-select-option>
+                  <ion-select-option value="en cours">En cours</ion-select-option>
+                  <ion-select-option value="terminé">Terminé</ion-select-option>
+                  <ion-select-option value="annulé">Annulé</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+
+            <ion-col size="12" size-md="6">
+              <ion-item>
+                <ion-label position="stacked">Priorité</ion-label>
+                <ion-select formControlName="priorite" interface="action-sheet">
+                  <ion-select-option value="basse">Basse</ion-select-option>
+                  <ion-select-option value="moyenne">Moyenne</ion-select-option>
+                  <ion-select-option value="haute">Haute</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+<ion-col size="12" size-md="6">
+  <ion-item>
+    <ion-label position="stacked">Membres de l'équipe *</ion-label>
+    <ion-select
+      formControlName="membres"
+      multiple="true"
+      interface="popover"
+      placeholder="Sélectionner les membres">
+      <ion-select-option
+        *ngFor="let user of users"
+        [value]="user._id"
+        [disabled]="user.statut !== 'actif'">
+        {{ user.prenom }} {{ user.nom }} - {{ user.poste }}
+        <span *ngIf="user.statut !== 'actif'" class="user-inactive">(Inactif)</span>
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <!-- Affichage des membres sélectionnés -->
+  <div *ngIf="projectForm.get('membres')?.value?.length > 0" class="selected-members">
+    <ion-chip *ngFor="let memberId of projectForm.get('membres')?.value" color="primary" size="small">
+      <ion-avatar>
+        <img
+          [src]="'https://ui-avatars.com/api/?name=' + getUserName(memberId) + '&background=3880ff&color=fff&size=32'" />
+      </ion-avatar>
+      <ion-label>{{ getUserName(memberId) }}</ion-label>
+      <ion-icon name="close" (click)="removeMember(memberId, $event)"></ion-icon>
+    </ion-chip>
+  </div>
+
+  <ion-note>
+    {{ projectForm.get('membres')?.value?.length || 0 }} membre(s) sélectionné(s)
+  </ion-note>
+</ion-col>
+
+
+            <ion-col size="12">
+              <ion-item>
+                <ion-label position="stacked">Budget (FCFA)</ion-label>
+                <ion-input type="number" formControlName="budget" placeholder="Budget du projet" min="0"></ion-input>
+              </ion-item>
+              <ion-note *ngIf="projectForm.get('budget')?.invalid && projectForm.get('budget')?.touched" color="danger">
+                Le budget doit être un nombre positif
+              </ion-note>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <div class="form-actions">
+          <ion-button expand="block" type="submit" color="primary" [disabled]="!projectForm.valid">
+            <ion-icon name="checkmark" slot="start"></ion-icon>
+            {{ editingProjectId ? 'Mettre à jour' : 'Créer le projet' }}
+          </ion-button>
+
+          <ion-button expand="block" color="medium" fill="outline" (click)="cancelForm()">
+            Annuler
+          </ion-button>
+        </div>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>

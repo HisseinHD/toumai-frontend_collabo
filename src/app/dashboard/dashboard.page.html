@@ -1,0 +1,163 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button color="light"></ion-menu-button>
+    </ion-buttons>
+
+    <ion-title>Tableau de Bord</ion-title>
+    
+     
+
+    <ion-buttons slot="end">
+      <ion-button color="light" (click)="confirmLogout()">
+        <ion-icon slot="start" [icon]="logOutIcon"></ion-icon>
+        Déconnexion
+
+      </ion-button>
+                      <app-notificatio></app-notificatio>
+
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="dashboard-container" *ngIf="!loading; else loadingTemplate">
+
+    <!-- Carte de bienvenue -->
+    <ion-card class="welcome-card">
+      <ion-card-header>
+        <ion-card-title>Bonjour, {{ currentUser?.nom || 'Utilisateur' }} !</ion-card-title>
+        <ion-card-subtitle>
+          {{ currentUser?.poste || 'Membre' }} • {{ currentUser?.role | titlecase }}
+        </ion-card-subtitle>
+      </ion-card-header>
+    </ion-card>
+
+    <!-- Statistiques principales cliquables -->
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6" size-md="3" *ngFor="let stat of getOverviewStats()">
+          <ion-card class="stat-card">
+            <ion-button expand="full" fill="clear" *ngIf="stat.link" [routerLink]="[stat.link]" class="stat-button">
+              <ion-card-content>
+                <div class="stat-value">{{ stat.value }}</div>
+                <div class="stat-label">{{ stat.label }}</div>
+              </ion-card-content>
+            </ion-button>
+            <ion-card-content *ngIf="!stat.link">
+              <div class="stat-value">{{ stat.value }}</div>
+              <div class="stat-label">{{ stat.label }}</div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- Projets et Tâches récentes -->
+    <ion-grid>
+      <ion-row>
+        <!-- Projets récents -->
+        <ion-col size="12" size-md="6">
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Projets Récents</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ng-container *ngIf="stats?.projects?.recent?.length > 0; else noProjects">
+                <ion-list lines="none">
+                  <ion-item *ngFor="let project of stats.projects.recent!" [routerLink]="['/projects', project._id]">
+                    <ion-label>
+                      <h3>{{ project.titre }}</h3>
+                      <p>{{ project.description | slice:0:50 }}...</p>
+                      <ion-badge [color]="getStatusColor(project.statut)">
+                        {{ project.statut }}
+                      </ion-badge>
+                    </ion-label>
+                    <ion-badge slot="end" [color]="getPriorityColor(project.priorite)">
+                      {{ project.priorite }}
+                    </ion-badge>
+                  </ion-item>
+                </ion-list>
+              </ng-container>
+              <ng-template #noProjects>
+                <p>Aucun projet récent.</p>
+              </ng-template>
+              <ion-button expand="block" fill="clear" routerLink="/projects">
+                Voir tous les projets
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+        <!-- Tâches récentes -->
+        <ion-col size="12" size-md="6">
+          <ion-card>
+            <ion-card-header>
+              <ion-card-title>Tâches Récentes</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ng-container *ngIf="stats?.tasks?.recent?.length > 0; else noTasks">
+                <ion-list lines="none">
+                  <ion-item *ngFor="let task of stats.tasks.recent!" [routerLink]="['/tasks', task._id]">
+                    <ion-label>
+                      <h3>{{ task.titre }}</h3>
+                      <p>Échéance : {{ task.echeance | date:'shortDate' }}</p>
+                      <ion-badge [color]="getStatusColor(task.statut)">
+                        {{ task.statut }}
+                      </ion-badge>
+                    </ion-label>
+                    <ion-badge slot="end" [color]="getPriorityColor(task.priorite)">
+                      {{ task.priorite }}
+                    </ion-badge>
+                  </ion-item>
+                </ion-list>
+              </ng-container>
+              <ng-template #noTasks>
+                <p>Aucune tâche récente.</p>
+              </ng-template>
+              <ion-button expand="block" fill="clear" routerLink="/tasks">
+                Voir toutes les tâches
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- Graphiques circulaires -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Statistiques des Tâches</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="6">
+              <h4>Répartition par état</h4>
+              <canvas baseChart [data]="taskStatusData" [options]="chartOptions" chartType="doughnut">
+              </canvas>
+            </ion-col>
+
+            <ion-col size="12" size-md="6">
+              <h4>Répartition par priorité</h4>
+              <canvas baseChart [data]="taskPriorityData" [options]="chartOptions" chartType="doughnut">
+              </canvas>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+  <ng-template #loadingTemplate>
+    <div class="loading-container">
+      <ion-spinner></ion-spinner>
+      <p>Chargement des données...</p>
+    </div>
+  </ng-template>
+</ion-content>

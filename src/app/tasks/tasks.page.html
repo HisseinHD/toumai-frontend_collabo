@@ -1,0 +1,284 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="loadTasks()" fill="clear">
+        <ion-icon slot="icon-only" name="refresh" [class.spin]="isLoading"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    
+    <ion-title class="ion-text-center">
+      <div class="header-content">
+        <ion-icon name="checkmark-done-outline" class="header-icon"></ion-icon>
+        <span>Gestion des Tâches</span>
+      </div>
+      
+    </ion-title>
+
+    <ion-buttons slot="end">
+        <ion-button (click)="goToCreatePage()" color="primary">
+          Créer une tâche
+          
+        </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-button routerLink="/dashboard" expand="block" fill="clear" shape="round">
+    Retour au Tableau de Bord
+  </ion-button>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="tasks-content">
+  <!-- Statistiques rapides -->
+  <div class="stats-section">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6" size-md="3">
+          <div class="stat-card" [class.active]="!filters.statut" (click)="clearStatusFilter()">
+            <div class="stat-number">{{ tasks.length }}</div>
+            <div class="stat-label">Total</div>
+            <ion-icon name="list-outline" class="stat-icon"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <div class="stat-card" [class.active]="filters.statut === 'à faire'" (click)="setStatusFilter('à faire')">
+            <div class="stat-number">{{ getTasksByStatus('à faire').length }}</div>
+            <div class="stat-label">À faire</div>
+            <ion-icon name="time-outline" class="stat-icon"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <div class="stat-card" [class.active]="filters.statut === 'en cours'" (click)="setStatusFilter('en cours')">
+            <div class="stat-number">{{ getTasksByStatus('en cours').length }}</div>
+            <div class="stat-label">En cours</div>
+            <ion-icon name="play-outline" class="stat-icon"></ion-icon>
+          </div>
+        </ion-col>
+        <ion-col size="6" size-md="3">
+          <div class="stat-card" [class.active]="filters.statut === 'terminée'" (click)="setStatusFilter('terminée')">
+            <div class="stat-number">{{ getTasksByStatus('terminée').length }}</div>
+            <div class="stat-label">Terminées</div>
+            <ion-icon name="checkmark-done-outline" class="stat-icon"></ion-icon>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Filtres avancés -->
+  <ion-card class="filters-card">
+    <ion-card-header (click)="toggleFilters()" class="filters-header">
+      <ion-card-title>
+        <ion-icon name="filter-outline" slot="start"></ion-icon>
+        Filtres et Recherche
+        <ion-icon [name]="filtersExpanded ? 'chevron-up' : 'chevron-down'" slot="end"></ion-icon>
+      </ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content *ngIf="filtersExpanded">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12" size-md="4">
+            <ion-item class="modern-item">
+              <ion-icon name="flag-outline" slot="start" color="medium"></ion-icon>
+              <ion-select 
+                [(ngModel)]="filters.statut" 
+                (ionChange)="onFilterChange()"
+                interface="action-sheet"
+                label="Statut"
+                label-placement="stacked">
+                <ion-select-option value="">Tous les statuts</ion-select-option>
+                <ion-select-option value="à faire">À faire</ion-select-option>
+                <ion-select-option value="en cours">En cours</ion-select-option>
+                <ion-select-option value="en revue">En revue</ion-select-option>
+                <ion-select-option value="terminée">Terminée</ion-select-option>
+                <ion-select-option value="bloquée">Bloquée</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+
+          <ion-col size="12" size-md="4">
+            <ion-item class="modern-item">
+              <ion-icon name="alert-circle-outline" slot="start" color="medium"></ion-icon>
+              <ion-select 
+                [(ngModel)]="filters.priorite" 
+                (ionChange)="onFilterChange()"
+                interface="action-sheet"
+                label="Priorité"
+                label-placement="stacked">
+                <ion-select-option value="">Toutes les priorités</ion-select-option>
+                <ion-select-option value="basse">Basse</ion-select-option>
+                <ion-select-option value="moyenne">Moyenne</ion-select-option>
+                <ion-select-option value="haute">Haute</ion-select-option>
+                <ion-select-option value="urgente">Urgente</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+
+          <ion-col size="12" size-md="4">
+            <ion-item class="modern-item">
+              <ion-icon name="search-outline" slot="start" color="medium"></ion-icon>
+              <ion-input 
+                [(ngModel)]="filters.searchTerm" 
+                (ionInput)="onFilterChange()"
+                label="Recherche"
+                label-placement="stacked"
+                placeholder="Titre, description, tags...">
+              </ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Liste des tâches -->
+  <div class="tasks-container">
+    <ng-container *ngIf="filteredTasks.length > 0; else noTasks">
+      <!-- En-tête de liste -->
+      <div class="list-header">
+        <h2>{{ filteredTasks.length }} tâche(s) trouvée(s)</h2>
+       
+            <ion-button (click)="goToCreatePage()" color="primary">
+        
+          <ion-icon slot="start" name="add"></ion-icon>
+          Nouvelle tâche
+        </ion-button>
+      </div>
+
+      <!-- Grille des tâches -->
+      <ion-grid class="tasks-grid">
+        <ion-row>
+          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let task of filteredTasks">
+            <ion-card class="task-card" [class.overdue]="isOverdue(task)" [class.high-priority]="task.priorite === 'urgente'">
+              <ion-card-header>
+                <div class="task-header">
+                  <ion-badge [color]="getPriorityColor(task.priorite)" class="priority-badge">
+                    {{ task.priorite | titlecase }}
+                  </ion-badge>
+                  <div class="task-actions">
+                    <ion-button fill="clear" size="small" (click)="openTaskForm(task)">
+                      <ion-icon name="create-outline"></ion-icon>
+                    </ion-button>
+                    <ion-button fill="clear" size="small" color="danger" (click)="deleteTask(task)">
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </ion-button>
+                  </div>
+                </div>
+                
+                <ion-card-title class="task-title">
+                  {{ task.titre }}
+                </ion-card-title>
+                
+                <div class="task-meta">
+                  <ion-chip [color]="getStatusColor(task.statut)" class="status-chip">
+                    <ion-icon [name]="getStatusIcon(task.statut)"></ion-icon>
+                    <ion-label>{{ task.statut | titlecase }}</ion-label>
+                  </ion-chip>
+                  
+                  <ion-badge *ngIf="isOverdue(task)" color="danger" class="overdue-badge">
+                    <ion-icon name="warning"></ion-icon>
+                    En retard
+                  </ion-badge>
+                </div>
+              </ion-card-header>
+
+              <ion-card-content>
+                <p class="task-description" *ngIf="task.description">
+                  {{ task.description }}
+                </p>
+
+                <!-- Progression -->
+                <div class="progress-section">
+                  <div class="progress-header">
+                    <span>Progression</span>
+                    <span class="progress-value">{{ task.progression }}%</span>
+                  </div>
+                  <ion-progress-bar 
+                    [value]="task.progression / 100" 
+                    [color]="getProgressColor(task.progression)"
+                    class="custom-progress">
+                  </ion-progress-bar>
+                </div>
+
+                <!-- Dates et informations -->
+                <div class="task-info">
+                  <div class="info-item">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>Échéance: {{ formatDate(task.echeance) }}</span>
+                  </div>
+                  
+                  <div class="info-item" *ngIf="task.tempsEstime">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span>{{ task.tempsEstime }}h estimé</span>
+                  </div>
+
+                  <div class="info-item" *ngIf="task.tags && task.tags.length > 0">
+                    <ion-icon name="pricetags-outline"></ion-icon>
+                    <div class="tags">
+                      <ion-chip *ngFor="let tag of task.tags.slice(0, 2)" outline size="small">
+                        <ion-label>{{ tag }}</ion-label>
+                      </ion-chip>
+                      <ion-chip *ngIf="task.tags.length > 2" outline size="small" color="medium">
+                        <ion-label>+{{ task.tags.length - 2 }}</ion-label>
+                      </ion-chip>
+                    </div>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ng-container>
+
+    <!-- État vide -->
+    <ng-template #noTasks>
+      <div class="empty-state">
+        <ion-icon name="checkmark-done-outline" class="empty-icon"></ion-icon>
+        <h2>Aucune tâche trouvée</h2>
+        <p *ngIf="filters.statut || filters.priorite || filters.searchTerm">
+          Aucune tâche ne correspond à vos critères de recherche.
+        </p>
+        <p *ngIf="!filters.statut && !filters.priorite && !filters.searchTerm">
+          Commencez par créer votre première tâche !
+        </p>
+          <ion-button (click)="goToCreatePage()" color="primary">
+            Créer une tâche
+          
+          <ion-icon slot="start" name="add"></ion-icon>
+        
+        </ion-button>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Pagination -->
+  <ion-footer *ngIf="totalPages > 1" class="pagination-footer">
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button (click)="loadPreviousPage()" [disabled]="currentPage === 1" fill="clear">
+          <ion-icon slot="start" name="chevron-back"></ion-icon>
+          Précédent
+        </ion-button>
+      </ion-buttons>
+
+      <div class="pagination-info">
+        <span>Page {{ currentPage }} sur {{ totalPages }}</span>
+        <small>{{ tasks.length }} tâche(s) au total</small>
+      </div>
+
+      <ion-buttons slot="end">
+        <ion-button (click)="loadNextPage()" [disabled]="currentPage === totalPages" fill="clear">
+          Suivant
+          <ion-icon slot="end" name="chevron-forward"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-footer>
+</ion-content>
+
+<!-- Loading overlay -->
+<ion-loading 
+  [isOpen]="isLoading" 
+  message="Chargement des tâches..."
+  spinner="crescent">
+</ion-loading>

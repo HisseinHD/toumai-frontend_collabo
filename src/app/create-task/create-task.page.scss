@@ -1,0 +1,153 @@
+/* ---------- En-tête ---------- */
+ion-header {
+    ion-toolbar {
+        --background: #0054e9;
+        --color: #fff;
+        padding: 0 8px;
+
+        ion-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        ion-button {
+            --color: #fff;
+        }
+    }
+
+    ion-button[routerLink] {
+        margin: 0.3rem auto 0.8rem auto;
+        display: block;
+        color: #0054e9;
+        font-weight: 500;
+        text-transform: none;
+        font-size: 0.95rem;
+        border-radius: 20px;
+        padding: 0 1rem;
+    }
+
+    ion-button[routerLink]:hover {
+        text-decoration: underline;
+    }
+}
+
+/* ---------- Contenu principal ---------- */
+ion-content {
+    --background: #f8f9fb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
+    min-height: calc(100vh - 80px);
+    /* réduit verticalement */
+}
+
+/* ---------- Formulaire ---------- */
+form {
+    width: 100%;
+    max-width: 440px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    padding: 0.8rem 1rem;
+    box-sizing: border-box;
+    margin: 0 auto;
+}
+
+/* ---------- Champs du formulaire ---------- */
+ion-item {
+    --background: transparent;
+    --inner-border-width: 0 0 1px 0;
+    --highlight-color-focused: #0054e9;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+ion-item.invalid {
+    --highlight-color-focused: #e74c3c;
+    border-left: 3px solid #e74c3c;
+}
+
+ion-label {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #333;
+}
+
+ion-input,
+ion-textarea,
+ion-select,
+ion-datetime {
+    font-size: 0.93rem;
+    color: #111;
+}
+
+ion-textarea {
+    min-height: 70px;
+}
+
+/* ---------- Messages d’erreur ---------- */
+ion-note[color='danger'] {
+    font-size: 0.75rem;
+    margin: -0.3rem 0 0.6rem 0.4rem;
+    display: block;
+}
+
+/* ---------- Sélecteurs ---------- */
+ion-select {
+    --placeholder-opacity: 0.6;
+}
+
+ion-select::part(icon) {
+    color: #0054e9;
+}
+
+/* ---------- Bouton principal ---------- */
+ion-button[type='submit'] {
+    --background: #0054e9;
+    --background-activated: #0042b5;
+    --border-radius: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    height: 42px;
+    margin-top: 0.8rem;
+    box-shadow: 0 3px 6px rgba(0, 84, 233, 0.25);
+    transition: all 0.2s ease;
+}
+
+ion-button[type='submit']:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(0, 84, 233, 0.3);
+}
+
+ion-button.loading {
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+ion-spinner {
+    margin-right: 6px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 480px) {
+    form {
+        max-width: 90%;
+        padding: 0.6rem 0.8rem;
+    }
+
+    ion-item {
+        margin-bottom: 0.45rem;
+    }
+
+    ion-button[type='submit'] {
+        height: 40px;
+        font-size: 0.88rem;
+    }
+
+    ion-header ion-title {
+        font-size: 1.1rem;
+    }
+}

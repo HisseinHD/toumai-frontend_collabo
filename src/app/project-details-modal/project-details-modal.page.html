@@ -1,0 +1,112 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Détails du Projet</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card class="details-card">
+    <ion-card-header>
+      <ion-card-title class="project-title">
+        {{ project.titre }}
+        <ion-badge [color]="getStatusColor(project.statut)" class="status-badge">
+          {{ project.statut }}
+        </ion-badge>
+      </ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <!-- Description -->
+      <div class="detail-section">
+        <h3>Description</h3>
+        <p>{{ project.description }}</p>
+      </div>
+
+      <!-- Informations générales -->
+      <div class="detail-section">
+        <h3>Informations Générales</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Date de début:</strong>
+            <span>{{ project.dateDebut | date: 'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Date de fin:</strong>
+            <span [class.overdue]="isProjectOverdue()">
+              {{ project.dateFin | date: 'dd/MM/yyyy' }}
+              <ion-badge *ngIf="isProjectOverdue()" color="danger" class="overdue-badge">
+                En retard
+              </ion-badge>
+            </span>
+          </div>
+          <div class="info-item">
+            <strong>Priorité:</strong>
+            <ion-badge [color]="getPriorityColor(project.priorite)">
+              {{ project.priorite }}
+            </ion-badge>
+          </div>
+          <div class="info-item">
+            <strong>Budget:</strong>
+            <span class="budget-amount">{{ project.budget | number }} FCFA</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Équipe -->
+      <div class="detail-section">
+        <h3>Équipe du Projet</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Chef de projet:</strong>
+            <span>{{ project.chefDeProjet?.nom || 'Non assigné' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Nombre de membres:</strong>
+            <span>{{ project.membres?.length || 0 }} membres</span>
+          </div>
+        </div>
+
+        <!-- Liste des membres -->
+        <div *ngIf="project.membres && project.membres.length > 0" class="members-list">
+          <h4>Membres de l'équipe:</h4>
+          <ion-list>
+            <ion-item *ngFor="let membre of project.membres">
+              <ion-label>
+                <h3>{{ membre.nom }}</h3>
+                <p>{{ membre.email }} - {{ membre.poste }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </div>
+
+        <div *ngIf="!project.membres || project.membres.length === 0" class="no-members">
+          <p>Aucun membre assigné à ce projet</p>
+        </div>
+      </div>
+
+      <!-- Statistiques -->
+      <div class="detail-section">
+        <h3>Statistiques</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">{{ project.membres?.length || 0 }}</div>
+            <div class="stat-label">Membres</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">{{ project.tasks?.length || 0 }}</div>
+            <div class="stat-label">Tâches</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">{{ getCompletedTasks() }}</div>
+            <div class="stat-label">Terminées</div>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

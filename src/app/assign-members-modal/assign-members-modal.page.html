@@ -1,0 +1,46 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Assigner un membre au projet</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">Annuler</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <h2 class="project-title">{{ project?.titre }}</h2>
+  <p class="project-desc">{{ project?.description }}</p>
+
+  <ng-container *ngIf="loading; else userList">
+    <div class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Chargement des utilisateurs...</p>
+    </div>
+  </ng-container>
+
+  <ng-template #userList>
+    <ion-list>
+      <ion-radio-group [(ngModel)]="selectedUserId">
+        <ion-item *ngFor="let user of users">
+          <ion-label>
+            <h3>{{ user.nom }}</h3>
+            <p>{{ user.email }} • {{ user.role | titlecase }}</p>
+          </ion-label>
+          <ion-radio slot="end" [value]="user._id"></ion-radio>
+        </ion-item>
+      </ion-radio-group>
+    </ion-list>
+  </ng-template>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button expand="block" color="success" (click)="assignProjectToUser()">
+      Assigner le projet
+    </ion-button>
+    <ion-button routerLink="/dashboard" expand="block" fill="clear">
+      Retour au Tableau de Bord
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

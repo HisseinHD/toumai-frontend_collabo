@@ -1,0 +1,110 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Nouvelle Tâche</ion-title>
+  </ion-toolbar>
+  <ion-button routerLink="/dashboard" expand="block" fill="clear" shape="round">
+    Retour au Tableau de Bord
+  </ion-button>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="taskForm" (ngSubmit)="submit()">
+    <ion-list lines="full">
+
+      <!-- Titre -->
+      <ion-item [class.invalid]="taskForm.get('titre')?.invalid && taskForm.get('titre')?.touched">
+        <ion-label position="stacked">Titre *</ion-label>
+        <ion-input formControlName="titre" placeholder="Ex: Développer la page d'accueil"></ion-input>
+      </ion-item>
+      <ion-note color="danger" *ngIf="getFieldError('titre')">
+        {{ getFieldError('titre') }}
+      </ion-note>
+
+      <!-- Description -->
+      <ion-item>
+        <ion-label position="stacked">Description</ion-label>
+        <ion-textarea formControlName="description" placeholder="Détails de la tâche" rows="4"></ion-textarea>
+      </ion-item>
+
+      <!-- Projet -->
+      <ion-item [class.invalid]="taskForm.get('projetId')?.invalid && taskForm.get('projetId')?.touched">
+        <ion-label>Projet *</ion-label>
+        <ion-select formControlName="projetId" interface="popover" [disabled]="!!projectId">
+          <ion-select-option value="">Sélectionner un projet</ion-select-option>
+          <ion-select-option *ngFor="let project of projects" [value]="project._id || project.id">
+            {{ getProjectDisplayName(project) }}
+          </ion-select-option>
+        </ion-select>
+        <ion-spinner *ngIf="loadingProjects" slot="end"></ion-spinner>
+      </ion-item>
+      <ion-note color="danger" *ngIf="getFieldError('projetId')">
+        {{ getFieldError('projetId') }}
+      </ion-note>
+
+      <!-- Assigné à -->
+      <ion-item [class.invalid]="taskForm.get('assigneA')?.invalid && taskForm.get('assigneA')?.touched">
+        <ion-label>Assigné à *</ion-label>
+        <ion-select formControlName="assigneA" interface="popover">
+          <ion-select-option value="">Sélectionner un utilisateur</ion-select-option>
+          <ion-select-option *ngFor="let user of users" [value]="user._id || user.id">
+            {{ getUserDisplayName(user) }}
+          </ion-select-option>
+        </ion-select>
+        <ion-spinner *ngIf="loadingUsers" slot="end"></ion-spinner>
+      </ion-item>
+      <ion-note color="danger" *ngIf="getFieldError('assigneA')">
+        {{ getFieldError('assigneA') }}
+      </ion-note>
+
+      <!-- Priorité -->
+      <ion-item>
+        <ion-label>Priorité</ion-label>
+        <ion-select formControlName="priorite" interface="popover">
+          <ion-select-option *ngFor="let p of prioriteOptions" [value]="p">
+            {{ p | titlecase }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Statut -->
+      <ion-item>
+        <ion-label>Statut</ion-label>
+        <ion-select formControlName="statut" interface="popover">
+          <ion-select-option *ngFor="let s of statutOptions" [value]="s">
+            {{ s | titlecase }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Échéance -->
+      <ion-item [class.invalid]="taskForm.get('echeance')?.invalid && taskForm.get('echeance')?.touched">
+        <ion-label position="stacked">Échéance *</ion-label>
+        <ion-datetime formControlName="echeance" presentation="date" placeholder="Sélectionner une date"
+          [min]="minDate">
+        </ion-datetime>
+      </ion-item>
+      <ion-note color="danger" *ngIf="getFieldError('echeance')">
+        {{ getFieldError('echeance') }}
+      </ion-note>
+
+      <!-- Temps estimé -->
+      <ion-item>
+        <ion-label position="stacked">Temps estimé (heures)</ion-label>
+        <ion-input type="number" formControlName="tempsEstime" min="0" placeholder="0"></ion-input>
+      </ion-item>
+
+    </ion-list>
+
+    <div class="ion-padding">
+      <ion-button expand="block" type="submit" [disabled]="loading || taskForm.invalid" [class.loading]="loading">
+        <ion-spinner *ngIf="loading" name="dots"></ion-spinner>
+        <span *ngIf="!loading">Créer la Tâche</span>
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

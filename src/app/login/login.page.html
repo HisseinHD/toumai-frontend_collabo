@@ -1,0 +1,45 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Connexion - Toumai Solutions</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="login-container">
+    <div class="logo-section">
+      <ion-icon name="person" size="large" color="primary"></ion-icon>
+      <h1>Toumai Solutions</h1>
+      <p>Gestion de projets collaboratifs</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="login()" class="form-section">
+      <ion-item>
+        <ion-label position="stacked">Email</ion-label>
+        <ion-input type="email" formControlName="email" placeholder="votre@email.com">
+        </ion-input>
+      </ion-item>
+      <ion-text color="danger" *ngIf="email?.invalid && email?.touched">
+        <small>Email invalide</small>
+      </ion-text>
+
+      <ion-item>
+        <ion-label position="stacked">Mot de passe</ion-label>
+        <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+          placeholder="Votre mot de passe">
+        </ion-input>
+        <ion-button fill="clear" slot="end" (click)="togglePasswordVisibility()" class="eye-button">
+          <ion-icon [name]="showPassword ? 'eye-off' : 'eye'"></ion-icon>
+        </ion-button>
+      </ion-item>
+      <ion-text color="danger" *ngIf="password?.invalid && password?.touched">
+        <small>Le mot de passe doit contenir au moins 6 caractères</small>
+      </ion-text>
+
+      <ion-button type="submit" expand="block" color="primary" [disabled]="loginForm.invalid" class="login-button">
+        Se connecter
+      </ion-button>
+      <ion-button expand="block" fill="clear" routerLink="/register">
+        S'inscrire
+      </ion-button>
+    </form>
+

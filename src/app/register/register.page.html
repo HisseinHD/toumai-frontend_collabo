@@ -1,0 +1,50 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Inscription</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-grid>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="6">
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+          <ion-item>
+            <ion-label position="floating">Nom</ion-label>
+            <ion-input formControlName="nom"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Email</ion-label>
+            <ion-input type="email" formControlName="email"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Mot de passe</ion-label>
+            <ion-input type="password" formControlName="password"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Poste</ion-label>
+            <ion-input formControlName="poste"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Rôle</ion-label>
+            <ion-select formControlName="role">
+              <ion-select-option value="membre">Membre</ion-select-option>
+              <ion-select-option value="admin">Admin</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-button expand="block" type="submit" class="ion-margin-top">
+            S’inscrire
+          </ion-button>
+          <ion-button expand="block" fill="clear" routerLink="/login">
+            Connexion
+          </ion-button>
+        </form>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

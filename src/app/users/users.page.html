@@ -1,0 +1,80 @@
+<ion-content [fullscreen]="true">
+  <div class="page-header">
+    <h1>Gestion des Utilisateurs</h1>
+    <p class="subtitle">Gérez les membres de votre équipe</p>
+    <ion-button routerLink="/dashboard" expand="block" fill="clear" shape="round">
+      Retour au Tableau de Bord
+    </ion-button>
+  </div>
+
+  <div class="users-stats">
+    <div class="stat-card">
+      <span class="stat-number">{{ users.length }}</span>
+      <span class="stat-label">Total</span>
+    </div>
+    <div class="stat-card admin-stat">
+      <span class="stat-number">{{ getAdminCount() }}</span>
+      <span class="stat-label">Admins</span>
+    </div>
+    <div class="stat-card member-stat">
+      <span class="stat-number">{{ getMemberCount() }}</span>
+      <span class="stat-label">Membres</span>
+    </div>
+  </div>
+
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)" class="refresh-control">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner class="loading-spinner" name="crescent"></ion-spinner>
+    <p class="loading-text">Chargement des utilisateurs...</p>
+  </div>
+
+  <ion-list class="users-list" *ngIf="!loading && users.length > 0">
+    <ion-item *ngFor="let user of users; trackBy: trackByUserId" class="user-item"
+      [class.admin-user]="user.role === 'admin'" [class.member-user]="user.role === 'membre'">
+
+      <div class="user-avatar" [class.admin-avatar]="user.role === 'admin'">
+        {{ user.nom.charAt(0) }}
+      </div>
+
+      <div class="user-info" slot="start">
+        <h3>
+          {{ user.nom | titlecase }}
+          <span class="user-role" [class.role-admin]="user.role === 'admin'"
+            [class.role-member]="user.role === 'membre'">
+            {{ user.role }}
+          </span>
+        </h3>
+
+        <p class="user-email">
+          <ion-icon name="mail-outline"></ion-icon>
+          {{ user.email }}
+        </p>
+
+        <p class="user-poste">
+          <ion-icon name="briefcase-outline"></ion-icon>
+          {{ user.poste }}
+        </p>
+      </div>
+
+      <div class="user-actions" slot="end">
+        <ion-button class="edit-btn" size="small" fill="solid">
+          <ion-icon name="create-outline" slot="start"></ion-icon>
+          Modifier
+        </ion-button>
+        <ion-button class="delete-btn" size="small" fill="solid" (click)="deleteUser(user)">
+          <ion-icon name="trash-outline" slot="start"></ion-icon>
+          Supprimer
+        </ion-button>
+      </div>
+    </ion-item>
+  </ion-list>
+
+  <div *ngIf="!loading && users.length === 0" class="empty-state">
+    <ion-icon name="people-outline"></ion-icon>
+    <h3>Aucun utilisateur</h3>
+    <p>Commencez par ajouter des utilisateurs à votre équipe</p>
+  </div>
+</ion-content>
